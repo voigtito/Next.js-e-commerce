@@ -1,6 +1,5 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
+import next, { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link'
-import Router from 'next/router'
 import React from 'react';
 import Stripe from 'stripe';
 import stripeConfig from '../config/stripe';
@@ -18,11 +17,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   const products = await stripe.products.list();
 
-  const paths = products.data.map((product) => ({
-    params: {
-      productId: product.id,
-    },
-  }));
+  const paths = products.data.map((product) => {
+
+    return ({
+      params: {
+        productId: product.id
+      },
+    })
+  });
 
   return {
     paths,
@@ -31,7 +33,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-
   const stripe = new Stripe(stripeConfig.secretKey, {
     apiVersion: '2020-08-27',
   });
@@ -42,20 +43,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const prices = await stripe.prices.list();
 
-  const price = prices.data.map((price, index) => {
-
-    if (price.product === productId) {
-      return price
-    }
-
-  });
-
-  price[0] = null
+  const productPrice = prices.data.find((price) => (product.id === price.product));
 
   return {
     props: {
       product,
-      price,
+      price: productPrice,
     }
   }
 }
@@ -71,7 +64,7 @@ const Product: React.FC<Props> = ({ product, price }) => {
             width: '100px',
           }}
         />}
-        <h2>{Number(price[1].unit_amount / 100).toFixed(1)}{price[1].currency.toUpperCase()}</h2>
+        <h2>{Number(price.unit_amount / 100).toFixed(1)}{price.currency.toUpperCase()}</h2>
         <Link href="/">Go back</Link>
       </div>
     </>
