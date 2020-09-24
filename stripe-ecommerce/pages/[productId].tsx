@@ -2,7 +2,9 @@ import next, { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link'
 import React from 'react';
 import Stripe from 'stripe';
+import CheckoutButton from '../components/CheckoutButton';
 import stripeConfig from '../config/stripe';
+import styled from 'styled-components';
 
 interface Props {
   product: Stripe.Product,
@@ -64,10 +66,20 @@ const Product: React.FC<Props> = ({ product, price }) => {
             width: '100px',
           }}
         />}
+        
         <h2>{Number(price.unit_amount / 100).toFixed(1)}{price.currency.toUpperCase()}</h2>
+
+        <CheckoutButton itemName={product.name} priceId={price.id}/>
+        
+        <br/>
+
         <Link href="/">Go back</Link>
+
       </div>
+
     </>
   )
 }
 export default Product;
+
+
